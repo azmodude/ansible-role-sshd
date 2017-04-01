@@ -1,0 +1,46 @@
+#jinja2: trim_blocks:False
+# {{ ansible_managed }}
+
+Port {{ ansible_port }}
+ListenAddress 0.0.0.0
+Protocol 2
+
+# Supported HostKey algorithms by order of preference.
+HostKey /etc/ssh/ssh_host_ed25519_key
+HostKey /etc/ssh/ssh_host_rsa_key
+HostKey /etc/ssh/ssh_host_ecdsa_key
+
+# Mozilla recommendations
+KexAlgorithms curve25519-sha256@libssh.org,ecdh-sha2-nistp521,ecdh-sha2-nistp384,ecdh-sha2-nistp256,diffie-hellman-group-exchange-sha256
+Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com
+
+SyslogFacility AUTHPRIV
+LogLevel VERBOSE
+
+LoginGraceTime 2m
+PermitRootLogin without-password
+
+PubkeyAuthentication yes
+AuthorizedKeysFile  .ssh/authorized_keys
+
+PasswordAuthentication no
+PermitEmptyPasswords no
+
+ChallengeResponseAuthentication yes
+UsePAM yes
+AuthenticationMethods {% if not sshd_google_authenticator_pam %} publickey keyboard-interactive:pam {% else %} publickey,keyboard-interactive:pam {% endif %}
+
+AllowAgentForwarding {% if sshd_allow_agentforwarding %} yes {% else %} no {% endif %}
+AllowTcpForwarding {% if sshd_allow_portforwarding %} yes {% else %} no {% endif %}
+X11Forwarding no
+UseDNS {% if sshd_use_dns %} yes {% else %} no {% endif %}
+
+# Accept locale-related environment variables
+AcceptEnv LANG LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES
+AcceptEnv LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT
+AcceptEnv LC_IDENTIFICATION LC_ALL LANGUAGE
+AcceptEnv XMODIFIERS
+
+# override default of no subsystems
+Subsystem   sftp  {{ sftp_server[ansible_os_family] }}
