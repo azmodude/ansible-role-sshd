@@ -24,12 +24,13 @@ PermitRootLogin without-password
 PubkeyAuthentication yes
 AuthorizedKeysFile  .ssh/authorized_keys
 
-PasswordAuthentication no
+PasswordAuthentication {% if sshd_allow_passwordauthentication %} yes {% else %} no {% endif %}
 PermitEmptyPasswords no
-
+{% if sshd_google_authenticator_pam %}
 ChallengeResponseAuthentication yes
 UsePAM yes
-AuthenticationMethods {% if not sshd_google_authenticator_pam %} publickey keyboard-interactive:pam {% else %} publickey,keyboard-interactive:pam {% endif %}
+AuthenticationMethods publickey,keyboard-interactive:pam
+{% endif %}
 
 AllowAgentForwarding {% if sshd_allow_agentforwarding %} yes {% else %} no {% endif %}
 AllowTcpForwarding {% if sshd_allow_portforwarding %} yes {% else %} no {% endif %}

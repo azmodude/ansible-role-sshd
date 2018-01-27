@@ -1,10 +1,11 @@
 ---
+sshd_allow_passwordauthentication: False
 sshd_google_authenticator_pam: False
 sshd_allow_portforwarding: True
 sshd_allow_agentforwarding: False
 sshd_use_dns: False
 
 sftp_server:
-  Debian: '/lib/openssh/sftp-server'
+  Debian: '/usr/lib/openssh/sftp-server'
   RedHat: '/usr/libexec/openssh/sftp-server'
 
